@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Galaxy</title>
+    <style type="text/css">
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+        border: none;
+        overflow: hidden;
+      }
+    </style>
+    <script
+      type="module"
+      src="three.js-master/examples/js/loaders/GLTFLoader.js"
+    ></script>
+  </head>
+  <body>
+    <script type="text/javascript" src="./lib/three.js"></script>
+    <script type="text/javascript" src="./lib/OrbitControls.js"></script>
+    <script type="text/javascript" src="./lib/dat.gui.js"></script>
+    <script type="module">
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true; //activam manual
+      document.body.appendChild(renderer.domElement);
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const BackgroundTextureLoader = new THREE.TextureLoader();
+      scene.background = BackgroundTextureLoader.load(
+        "three.js-master/examples/textures/stars.jpg"
+      );
+      const gridHelper = new THREE.GridHelper(190);
+      gridHelper.position.set(0, -30, 0);
+      scene.add(gridHelper);
+      gridHelper.name = "gridHelper";
+      const axesHelper = new THREE.AxesHelper(10);
+      axesHelper.position.set(0, -30, 0);
+      scene.add(axesHelper);
+      axesHelper.name = "axesHelper";
+      const orbit = new THREE.OrbitControls(camera, renderer.domElement);
+      camera.position.set(-90, 140, 140);
+      orbit.update();
+      const ambientLight = new THREE.AmbientLight(0x333333);
+      scene.add(ambientLight);
+      const planeGeometry = new THREE.PlaneGeometry(190, 190);
+      const planeMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        side: THREE.DoubleSide,
+      });
+      const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+      plane.position.set(0, -30, 0);
+      plane.receiveShadow = true;
+      scene.add(plane);
+      plane.rotation.x = -0.5 * Math.PI;
+
+      const textureLoader = new THREE.TextureLoader();
+      const textLoader4 = new THREE.TextureLoader();
+      const sunTexture = textLoader4.load(
+        "three.js-master/examples/textures/sprites/sun.jpg"
+      );
+      const sunGeo = new THREE.SphereGeometry(16, 30, 30);
+      const sunMat = new THREE.MeshBasicMaterial({
+        map: sunTexture,
+      });
+      const sun = new THREE.Mesh(sunGeo, sunMat);
+      scene.add(sun);
+
+      function createPlanete(size, texture, position, ring) {
+        const geo = new THREE.SphereGeometry(size, 30, 30);
+        const mat = new THREE.MeshStandardMaterial({
+          map: textureLoader.load(texture),
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        const obj = new THREE.Object3D();
+        obj.add(mesh);
+        if (ring) {
+          const ringGeo = new THREE.RingGeometry(
+            ring.innerRadius,
+            ring.outerRadius,
+            32
+          );
+          const ringMat = new THREE.MeshBasicMaterial({
+            map: textureLoader.load(ring.texture),
+            side: THREE.DoubleSide,
+          });
+          const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+          obj.add(ringMesh);
+          ringMesh.position.x = position;
+          ringMesh.rotation.x = -0.5 * Math.PI;
+        }
+        scene.add(obj);
+        mesh.position.x = position;
+        return { mesh, obj };
+      }
+      const mercuryImage =
+        "three.js-master/examples/textures/sprites/mercury.jpg";
+      const venusImage = "three.js-master/examples/textures/sprites/venus.jpg";
+      const earthImage = "three.js-master/examples/textures/sprites/earth.jpg";
+      const plutoImage = "three.js-master/examples/textures/sprites/pluto1.jpg";
+      const uranusImage =
+        "three.js-master/examples/textures/sprites/uranus.jpg";
+      const saturnImage =
+        "three.js-master/examples/textures/sprites/saturn.jpg";
+      const marsImage = "three.js-master/examples/textures/sprites/mars.jpg";
+      const jupiterImage =
+        "three.js-master/examples/textures/sprites/jupiter.jpg";
+      const saturnRingImage =
+        "three.js-master/examples/textures/sprites/saturnrRing.png";
+      const neptunImage =
+        "three.js-master/examples/textures/sprites/neptun.jpg";
+
+      const mercury = createPlanete(3.2, mercuryImage, 28);
+      const venus = createPlanete(5.8, venusImage, 44);
+      const earth = createPlanete(6, earthImage, 62);
+      const mars = createPlanete(4, marsImage, 78);
+      const jupiter = createPlanete(12, jupiterImage, 90);
+      const saturn = createPlanete(10, saturnImage, 125, {
+        innerRadius: 10,
+        outerRadius: 20,
+        texture: saturnRingImage,
+      });
+      const uranus = createPlanete(7, uranusImage, 159);
+      const neptun = createPlanete(7, neptunImage, 170);
+      const pluto = createPlanete(2.8, plutoImage, 186);
+
+      const pointLight = new THREE.PointLight(0xffffff, 2, 300);
+      scene.add(pointLight);
+      /////////////////////////////adding others meshes////////////////////////////////////
+
+      const box2Geometry = new THREE.BoxGeometry(7, 7, 7);
+      const box2MultiMaterial = new THREE.MeshBasicMaterial({
+        color: 0x34eb5e,
+        map: textureLoader.load("three.js-master/examples/textures/nebula.jpg"),
+      });
+
+      const box2 = new THREE.Mesh(box2Geometry, box2MultiMaterial);
+      scene.add(box2);
+      box2.position.set(-29, -26, -43);
+      box2.name = "theBox";
+
+      const cuboidGeo = new THREE.BoxGeometry(9, 10, 21);
+      const cuboidMaterial = new THREE.MeshBasicMaterial({
+        map: textureLoader.load("three.js-master/examples/textures/nebula.jpg"),
+      });
+      const cuboidKey = new THREE.Mesh(cuboidGeo, cuboidMaterial);
+      cuboidKey.position.set(-18, -20, -40);
+      cuboidKey.name = "cube";
+      function setupKeyControls() {
+        var cube = scene.getObjectByName("cube");
+        document.onkeydown = function (e) {
+          switch (e.keyCode) {
+            case 65:
+              cube.rotation.x += 0.1;
+              break;
+            case 68:
+              cube.rotation.z -= 0.1;
+              break;
+            case 83:
+              cube.rotation.x -= 0.1;
+              break;
+            case 87:
+              cube.rotation.z += 0.1;
+              break;
+          }
+        };
+      }
+      scene.add(cuboidKey);
+
+      const sphereGeometry = new THREE.SphereGeometry(4, 50, 50);
+      const sphereMaterial = new THREE.MeshStandardMaterial({
+        color: 0x00f0ff,
+        wireframe: false,
+      });
+      const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+      scene.add(sphere);
+      sphere.position.set(-60, 3, -40);
+      sphere.castShadow = true;
+      /////////////////////////////////particles//////////////////////////////////
+      var textureLoaderP = new THREE.TextureLoader();
+      var textures = [];
+      textures.push(
+        textureLoaderP.load(
+          "three.js-master/examples/textures/sprites/comet1.png"
+        )
+      );
+      textures.push(
+        textureLoaderP.load(
+          "three.js-master/examples/textures/sprites/comt2.png"
+        )
+      );
+      textures.push(
+        textureLoaderP.load(
+          "three.js-master/examples/textures/sprites/comet3.png"
+        )
+      );
+      var pointsMaterial = new THREE.PointsMaterial({
+        size: 2,
+        map: textures[2],
+        opacity: 0.9,
+        transparent: true,
+      });
+      var pointCloudGeometry = new THREE.Geometry();
+
+      for (var i = 0; i < 150; i++) {
+        for (var j = 0; j < 150; j++) {
+          pointCloudGeometry.vertices.push(
+            new THREE.Vector3(
+              Math.random() * 500,
+              Math.random() * 500,
+              Math.random() * 500
+            )
+          );
+        }
+      }
+      pointCloudGeometry.translate(-100, -100, -250);
+      var pointCloud = new THREE.Points(pointCloudGeometry, pointsMaterial);
+      pointCloud.name = "particles";
+      pointCloud.visible = false;
+      scene.add(pointCloud);
+      ////////////////////////////////////
+      var pointsMaterial1 = new THREE.PointsMaterial({
+        size: 2,
+        map: textures[1],
+        opacity: 0.9,
+        transparent: true,
+      });
+      var pointCloudGeometry1 = new THREE.Geometry();
+
+      for (var i = 0; i < 150; i++) {
+        for (var j = 0; j < 150; j++) {
+          pointCloudGeometry1.vertices.push(
+            new THREE.Vector3(
+              Math.random() * 500,
+              Math.random() * 500,
+              Math.random() * 500
+            )
+          );
+        }
+      }
+      pointCloudGeometry1.translate(-250, -250, -250);
+      var pointCloud1 = new THREE.Points(pointCloudGeometry1, pointsMaterial1);
+      pointCloud1.name = "particles1";
+      pointCloud1.visible = false;
+      scene.add(pointCloud1);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+      // new THREE.OrbitControls(camera);
+
+      ////////////////////ceata//////////////////
+
+      scene.fog = new THREE.Fog(0x000000, 100, 900);
+
+      //adaugam dat.gui
+      const gui = new dat.GUI();
+
+      const options = {
+        sphereColor: "#00f0ff",
+        wireframe: false,
+        angle: 1,
+        penumbra: 1,
+        intensity: 1,
+        grid: true,
+        axes: true,
+        particles: false,
+        move: -29,
+      };
+
+      gui.addColor(options, "sphereColor").onChange(function (e) {
+        sphere.material.color.set(e);
+      });
+      gui.add(options, "wireframe").onChange(function (e) {
+        sphere.material.wireframe = e;
+      });
+      gui.add(options, "angle", 0, 1);
+      gui.add(options, "penumbra", 0, 1);
+      gui.add(options, "intensity", 0, 1);
+      gui.add(options, "grid").onChange(function (e) {
+        scene.getObjectByName("gridHelper").visible = e;
+      });
+      gui.add(options, "axes").onChange(function (e) {
+        scene.getObjectByName("axesHelper").visible = e;
+      });
+
+      gui.add(options, "particles").onChange(function (e) {
+        pointCloud1.visible = e;
+        pointCloud.visible = e;
+      });
+
+      gui.add(options, "move", -50, 50).onChange(function (e) {
+        box2.position.y = e;
+      });
+      //////////////////////////////rotate cube////////////
+      let step = 0;
+
+      //selecting objects
+      const mousePosition = new THREE.Vector2();
+      window.addEventListener("mousemove", function (e) {
+        mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      });
+      const rayCaster = new THREE.Raycaster();
+      const spotLight = new THREE.SpotLight(0xffffff);
+      scene.add(spotLight);
+      spotLight.position.set(-100, 100, 0);
+      spotLight.castShadow = true;
+      spotLight.angle = 1;
+
+      //////////////////////import astronaut
+
+      var loader = new THREE.GLTFLoader();
+      loader.load(
+        "three.js-master/examples/textures/astronaut.glb",
+        function (gltf) {
+          gltf.scene.scale.set(6, 6, 6);
+          gltf.scene.position.x = -30;
+          gltf.scene.position.y = -20;
+          gltf.scene.position.z = -40;
+          scene.add(gltf.scene);
+        }
+      );
+      var loader1 = new THREE.GLTFLoader();
+
+      loader1.load(
+        "three.js-master/examples/textures/rocket1.glb",
+        function (gltf) {
+          gltf.scene.scale.set(20, 20, 20);
+          gltf.scene.position.x = -50;
+          gltf.scene.position.y = -13;
+          gltf.scene.position.z = -90;
+          scene.add(gltf.scene);
+        }
+      );
+
+      ////////////////////////////////////////
+      function animate(time) {
+        step += 0.01;
+        sphere.position.y = 10 * Math.abs(Math.sin(step));
+        spotLight.angle = options.angle;
+        spotLight.penumbra = options.penumbra;
+        spotLight.intensity = options.intensity;
+
+        //Self-rotation
+        sun.rotateY(0.004);
+        mercury.mesh.rotateY(0.004);
+        venus.mesh.rotateY(0.002);
+        earth.mesh.rotateY(0.02);
+        mars.mesh.rotateY(0.018);
+        jupiter.mesh.rotateY(0.04);
+        saturn.mesh.rotateY(0.038);
+        uranus.mesh.rotateY(0.03);
+        neptun.mesh.rotateY(0.032);
+        pluto.mesh.rotateY(0.008);
+
+        //Around-sun-rotation
+        mercury.obj.rotateY(0.04);
+        venus.obj.rotateY(0.015);
+        earth.obj.rotateY(0.01);
+        mars.obj.rotateY(0.008);
+        jupiter.obj.rotateY(0.002);
+        saturn.obj.rotateY(0.0009);
+        uranus.obj.rotateY(0.0004);
+        neptun.obj.rotateY(0.0001);
+        pluto.obj.rotateY(0.00007);
+
+        pointCloud.rotation.x += 0.001;
+        pointCloud.rotation.z -= 0.005;
+        pointCloud1.rotation.x += 0.001;
+        pointCloud1.rotation.z -= 0.005;
+
+        //////////cube
+
+        rayCaster.setFromCamera(mousePosition, camera);
+        const intersects = rayCaster.intersectObjects(scene.children);
+        for (let i = 0; i < intersects.length; i++) {
+          if (intersects[i].object.name === "theBox") {
+            intersects[i].object.rotation.x = time / 1000;
+            intersects[i].object.rotation.y = time / 1000;
+          }
+        }
+        renderer.render(scene, camera);
+      }
+      setupKeyControls();
+      renderer.setAnimationLoop(animate);
+
+      window.addEventListener("resize", function () {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
+  </body>
+</html>
